@@ -12,25 +12,69 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
+      # 1. 安装 Node.js
       - uses: actions/setup-node@v3
         with:
           node-version: '22.11.0'
           registry-url: 'https://registry.npmjs.org'
-      - run: pnpm install
-      - run: pnpm publish --access public # publish to npm registry without specifying registry url
+
+      # 2. 安装 pnpm（推荐使用 `corepack` 确保版本一致）
+      - name: Install pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@latest --activate
+
+      # 3. 缓存 pnpm 依赖（加快构建）
+      - name: Cache pnpm dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.pnpm-store
+            node_modules
+            **/node_modules
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
+
+      # 4. 安装依赖并发布到 npm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm publish --access public
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} # use your npm token stored as a secret
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   publish-github-packages:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
+      # 1. 安装 Node.js
       - uses: actions/setup-node@v3
         with:
           node-version: '22.11.0'
-          registry-url: 'https://npm.pkg.github.com' # specify the registry url for github packages
-          scope: '@entity-now' # optional, default is repository owner
-      - run: pnpm install
-      - run: pnpm publish --access public # publish to github packages using the registry url in package.json 
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@entity-now'  # 可选，默认是仓库所有者
+
+      # 2. 安装 pnpm
+      - name: Install pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@latest --activate
+
+      # 3. 缓存 pnpm 依赖
+      - name: Cache pnpm dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.pnpm-store
+            node_modules
+            **/node_modules
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
+
+      # 4. 安装依赖并发布到 GitHub Packages
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm publish --access public
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.GIT_TOKEN }} # use the github token provided by default
+          NODE_AUTH_TOKEN: ${{ secrets.GIT_TOKEN }}
