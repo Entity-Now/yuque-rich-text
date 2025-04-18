@@ -19,13 +19,13 @@ jobs:
           node-version: '22.11.0'
           registry-url: 'https://registry.npmjs.org'
 
-      # 2. 安装 pnpm（推荐使用 `corepack` 确保版本一致）
+      # 2. 安装 pnpm（改用官方 pnpm/action-setup 或 npm 安装）
       - name: Install pnpm
-        run: |
-          corepack enable
-          corepack prepare pnpm@latest --activate
+        uses: pnpm/action-setup@v2
+        with:
+          version: latest  # 或指定版本，如 "8.15.0"
 
-      # 3. 缓存 pnpm 依赖（加快构建）
+      # 3. 缓存 pnpm 依赖
       - name: Cache pnpm dependencies
         uses: actions/cache@v3
         with:
@@ -57,9 +57,9 @@ jobs:
 
       # 2. 安装 pnpm
       - name: Install pnpm
-        run: |
-          corepack enable
-          corepack prepare pnpm@latest --activate
+        uses: pnpm/action-setup@v2
+        with:
+          version: latest
 
       # 3. 缓存 pnpm 依赖
       - name: Cache pnpm dependencies
@@ -75,6 +75,3 @@ jobs:
 
       # 4. 安装依赖并发布到 GitHub Packages
       - run: pnpm install --frozen-lockfile
-      - run: pnpm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GIT_TOKEN }}
