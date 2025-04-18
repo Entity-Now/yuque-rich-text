@@ -1,0 +1,32 @@
+{
+  "name": "yuque-rich-text",
+  "private": true,
+  "version": "1.0.0", 
+  "author": "entity-now",
+  "description": "由于本人觉得语雀编辑器非常好用，很符合我的使用习惯，然后发现语雀的浏览器插件实现了编辑器的功能，所以将其富文本的功能拆分位一个单独的Vue3组件。", 
+  "keywords": ["富文本编辑器", "Rich Text", "yuque", "语雀", "vue3 rich text"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Entity-Now/yuque-rich-text"
+  },
+  "type": "module",
+  "main": "./src/index.ts",
+  "scripts": {
+    "dev": "vite",
+    "demo:preview": "vite preview",
+    "build:demo": "VITE_BUILD_TARGET=demo vue-tsc -b && vite build",
+    "build:lib": "vite build"
+  },
+  "dependencies": {
+    "@types/node": "^22.14.1",
+    "vite-plugin-dts": "^4.5.3",
+    "vue": "^3.5.13"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.2",
+    "@vue/tsconfig": "^0.7.0",
+    "typescript": "~5.7.2",
+    "vite": "^6.3.0",
+    "vue-tsc": "^2.2.8"
+  }
+}
