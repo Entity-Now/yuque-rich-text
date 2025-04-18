@@ -9,6 +9,9 @@
     "type": "git",
     "url": "https://github.com/Entity-Now/yuque-rich-text"
   },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
   "type": "module",
   "main": "./src/index.ts",
   "scripts": {

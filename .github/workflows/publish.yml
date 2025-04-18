@@ -1,0 +1,36 @@
+name: Publish npm package
+
+on:
+  release:
+    types: [published]
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  publish-npm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '22.11.0'
+          registry-url: 'https://registry.npmjs.org'
+      - run: pnpm install
+      - run: pnpm publish --access public # publish to npm registry without specifying registry url
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} # use your npm token stored as a secret
+
+  publish-github-packages:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '22.11.0'
+          registry-url: 'https://npm.pkg.github.com' # specify the registry url for github packages
+          scope: '@entity-now' # optional, default is repository owner
+      - run: pnpm install
+      - run: pnpm publish --access public # publish to github packages using the registry url in package.json 
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GIT_TOKEN }} # use the github token provided by default
