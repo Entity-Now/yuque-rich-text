@@ -3,7 +3,7 @@
 由于本人觉得语雀编辑器非常好用，很符合我的使用习惯，然后发现语雀的[Chrome浏览器插件](https://github.com/yuque/yuque-chrome-extension)实现了编辑器的功能，所以将其富文本的功能拆分位一个单独的Vue3组件。
 
 ## 截图
-![组件实例](public/images/preview.png)
+![组件实例](https://github.com/Entity-Now/yuque-rich-text/blob/master/public/Images/preview.png)
 
 ### Props
 
