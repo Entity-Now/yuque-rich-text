@@ -10,13 +10,45 @@ npm i yuque-rich-text
 ## 截图
 ![组件实例](https://github.com/Entity-Now/yuque-rich-text/blob/master/public/Images/preview.png)
 
+
+### 编辑使用案例
+> 注意不可在onChange事件中修改value的值，否则会进入无限递归。
+```js
+<template>
+  <YuqueRichText ref="editorRef" :value="content" />
+  <button @click="appendText">追加内容</button>
+  <button @click="getContent">获取内容</button>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue'
+import { YuqueRichText } from 'yuque-rich-text'
+
+const editorRef = ref<InstanceType<typeof YuqueRichText>>()
+const content = ref('初始内容')
+
+const appendText = async () => {
+  if (editorRef.value) {
+    editorRef.value.appendContent('<p>这是追加的内容</p>', true)
+  }
+}
+
+const getContent = async () => {
+  if (editorRef.value) {
+    const html = await editorRef.value.getContent('text/html')
+    console.log('当前内容:', html)
+  }
+}
+</script>
+```
+
 ### Props
 
 ```js
     export interface EditorProps {
         value: string; // 传递给组件的内容
-        children?: any; 
-        isview?: boolean; // 预览模式，用于在客户端页面展示结果。
+        children?: any; // 暂无实现
+        isview?: boolean; // 为true该组件是只读的，为空或false则是编辑模式
         uploadImage?: (params: { data: string | File }) => Promise<{
             url: string;
             size: number;
@@ -94,21 +126,6 @@ npm i yuque-rich-text
     }
 ```
 
-### 编辑器
-> 注意不可在onChange事件中修改value的值，否则会进入无限递归。
-```js
-<template>
-      <YuqueRichText ref="editRef" :value="modelValue"/>
-</template>
-
-<script setup lang="ts">
-import { ref, watch, PropType } from "vue";
-import { YuqueRichText } from "yuque-rich-text";
-
-const editRef = ref<InstanceType<typeof YuqueRichText>>();
-const modelValue = ref("hello yuque richtext");
-</script>
-```
 
 ## ⚠️ Disclaimer  
 This is an **unofficial third-party extension** for `[www.yuque.com]`. It is not affiliated with, maintained by, or endorsed by `[www.yuque.com]`.  
