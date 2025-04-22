@@ -8,7 +8,7 @@ npm i yuque-rich-text
 ```
 
 ## 截图
-![组件实例](https://github.com/Entity-Now/yuque-rich-text/blob/master/public/Images/preview.png)
+![组件实例](https://github.com/Entity-Now/yuque-rich-text/blob/master/public/Images/yuque-rich-text.gif)
 
 
 ### 编辑使用案例
