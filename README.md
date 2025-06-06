@@ -10,36 +10,88 @@ npm i yuque-rich-text
 ## 截图
 ![组件实例](https://github.com/Entity-Now/yuque-rich-text/blob/master/public/Images/yuque-rich-text.gif)
 
+### 引入相关样式
+
+`head`标签中加入
+
+``` html
+  <head>
+    <link rel="stylesheet" type="text/css" href="https://gw.alipayobjects.com/render/p/yuyan_npm/@alipay_lakex-doc/1.71.0/umd/doc.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gw.alipayobjects.com/os/lib/antd/4.24.13/dist/antd.css"/>
+  </head>
+```
+
+`body`标签内的最后一行加入
+
+```html
+  <body>
+    <script crossorigin src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://gw.alipayobjects.com/render/p/yuyan_v/180020010000005484/7.1.4/CodeMirror.js"></script>
+    <script src="https://ur.alipay.com/tracert_a385.js"></script>
+    <script src="https://mdn.alipayobjects.com/design_kitchencore/afts/file/ANSZQ7GHQPMAAAAAAAAAAAAADhulAQBr"></script>
+    <script src="https://gw.alipayobjects.com/render/p/yuyan_npm/@alipay_lakex-doc/1.71.0/umd/doc.umd.js"></script>
+  </body>
+```
 
 ### 编辑使用案例
 > 注意不可在onChange事件中修改value的值，否则会进入无限递归。
-```js
+
+```html
+
 <template>
-  <YuqueRichText ref="editorRef" :value="content" />
+  <YuqueRichText ref="editorRef" :value="content" @onChange="editChange" @onLoad="load"/>
   <button @click="appendText">追加内容</button>
   <button @click="getContent">获取内容</button>
+  <button @click="setText">更新内容</button>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
 import { YuqueRichText } from 'yuque-rich-text'
+import type { IEditorRef } from "yuque-rich-text";
 
-const editorRef = ref<InstanceType<typeof YuqueRichText>>()
+const editorRef = ref<IEditorRef>()
 const content = ref('初始内容')
 
-const appendText = async () => {
+const appendText = () => {
   if (editorRef.value) {
     editorRef.value.appendContent('<p>这是追加的内容</p>', true)
   }
 }
-
-const getContent = async () => {
+const setText = () => {
   if (editorRef.value) {
-    const html = await editorRef.value.getContent('text/html')
-    console.log('当前内容:', html)
+    editorRef.value.setContent('<p>更新的内容</p>')
   }
 }
+
+const getContent = () => {
+  if (editorRef.value) {
+    const html = editorRef.value.getContent('text/html')
+    alert('当前内容:' + html)
+  }
+}
+
+const load = ()=>{
+  console.log("编辑器加载成功...");
+  // 此时可进行增删改查操作
+  editorRef.value?.appendContent('<p>这是追加的内容</p><br>', true)
+}
+
+const editChange = (e : string)=>{
+  console.log("编辑器内容发生变化：", e);
+}
 </script>
+```
+
+### 预览模式
+
+> 使用也非常简单， 将组建的`isview`属性改为`true`即可。
+
+```html
+<template>
+  <YuqueRichText :isview="true" :value="content" />
+</template>
 ```
 
 ### Props
@@ -92,7 +144,7 @@ const getContent = async () => {
          * @param type 内容的格式
          * @return 文档内容
          */
-        getContent: (type: "lake" | "text/html") => Promise<string>;
+        getContent: (type: "lake" | "text/html") => string;
         /**
          * 判断当前文档是否是空文档
          * @return true表示当前是空文档

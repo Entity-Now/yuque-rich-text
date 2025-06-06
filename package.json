@@ -1,7 +1,7 @@
 {
   "name": "yuque-rich-text",
   "private": false,
-  "version": "1.0.1", 
+  "version": "1.0.2", 
   "author": "entity-now",
   "description": "由于本人觉得语雀编辑器非常好用，很符合我的使用习惯，然后发现语雀的浏览器插件实现了编辑器的功能，所以将其富文本的功能拆分位一个单独的Vue3组件。", 
   "keywords": ["富文本编辑器", "Rich Text", "yuque", "语雀", "vue3 rich text"],

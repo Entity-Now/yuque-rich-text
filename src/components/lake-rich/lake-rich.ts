@@ -2,9 +2,9 @@ import { ref, watch, h, onMounted, onUnmounted, defineComponent } from "vue";
 import { templateHtml } from "./template";
 import loadLakeEditor from "./load";
 import { InjectEditorPlugin } from "./editor-plugin";
-import { slash } from './slash-options';
+import { slash } from "./slash-options";
 
-const blockquoteID = 'yqextensionblockquoteid';
+const blockquoteID = "yqextensionblockquoteid";
 export interface EditorProps {
 	value: string;
 	children?: any;
@@ -20,7 +20,7 @@ export interface EditorProps {
 		filename: string;
 	}>;
 }
-export interface EditorEmits{
+export interface EditorEmits {
 	onChange?: (value: string) => void;
 	onLoad?: () => void;
 	onSave?: () => void;
@@ -47,7 +47,7 @@ export interface IEditorRef {
 	 * @param type 内容的格式
 	 * @return 文档内容
 	 */
-	getContent: (type: "lake" | "text/html") => Promise<string>;
+	getContent: (type: "lake" | "text/html") => string;
 	/**
 	 * 判断当前文档是否是空文档
 	 * @return true表示当前是空文档
@@ -82,7 +82,7 @@ export interface IEditorRef {
 
 export default defineComponent({
 	props: {
-		value:{
+		value: {
 			type: String,
 			default: "",
 		},
@@ -90,9 +90,9 @@ export default defineComponent({
 			type: Boolean,
 			default: false,
 			required: false,
-		}
+		},
 	},
-	emits: ['onChange', 'onLoad', 'onSave', 'uploadImage'],
+	emits: ["onChange", "onLoad", "onSave", "uploadImage"],
 	setup(props: EditorProps, { emit, expose }) {
 		const isBrowser = typeof window !== "undefined";
 		const iframeRef = ref<HTMLIFrameElement>();
@@ -111,26 +111,25 @@ export default defineComponent({
 				// 加载编辑器
 				loadLakeEditor(win).then(() => {
 					// 创建编辑器
-					let editInstance = props.isview ? createOpenViewer : createOpenEditor;
-					const newEditor = editInstance(
-						doc.getElementById("root"),
-						{
-							scrollNode: () => {
-								return doc.querySelector(".ne-editor-wrap");
-							},
-							image: {
-								uploadFileURL: "/api/upload/image",
-								crawlURL: "/api/upload/image",
-								createUploadPromise: props.uploadImage
-							},
-							video: {
-								uploadFileURL: "/api/upload/video",
-								createUploadPromise: props.uploadVideo
-							},
-							placeholder: "输入内容...",
-							defaultFontsize: 14,
-						}
-					);
+					let editInstance = props.isview
+						? createOpenViewer
+						: createOpenEditor;
+					const newEditor = editInstance(doc.getElementById("root"), {
+						scrollNode: () => {
+							return doc.querySelector(".ne-editor-wrap");
+						},
+						image: {
+							uploadFileURL: "/api/upload/image",
+							crawlURL: "/api/upload/image",
+							createUploadPromise: props.uploadImage,
+						},
+						video: {
+							uploadFileURL: "/api/upload/video",
+							createUploadPromise: props.uploadVideo,
+						},
+						placeholder: "输入内容...",
+						defaultFontsize: 14,
+					});
 					newEditor.on("visitLink", (url: string) => {
 						window.open(url, "__blank");
 					});
@@ -154,13 +153,16 @@ export default defineComponent({
 				emit("onSave");
 			}
 		};
-		watch([() => props.value, () => editor.value], ([value, edit], [oldValue, oldEdit]) => {
-			if (!editor.value) return;
-			
-			editor.value?.setDocument("lake", props.value);
-			editor.value?.execCommand("paragraphSpacing", "relax");
-			emit("onLoad");
-		});
+		watch(
+			[() => props.value, () => editor.value],
+			([value, edit], [oldValue, oldEdit]) => {
+				if (!editor.value) return;
+
+				editor.value?.setDocument("lake", props.value);
+				editor.value?.execCommand("paragraphSpacing", "relax");
+				emit("onLoad");
+			}
+		);
 		watch([() => editor.value, () => iframeRef.value], (input) => {
 			if (!editor.value || !iframeRef.value) return;
 			iframeRef.value?.contentDocument?.addEventListener(
@@ -173,47 +175,52 @@ export default defineComponent({
 			appendContent: (html: string, breakLine = false) => {
 				if (!editor.value) return;
 				if (breakLine) {
-				  editor.value.execCommand('breakLine');
+					editor.value.execCommand("breakLine");
 				}
-				editor.value.kernel.execCommand('insertHTML', html);
+				editor.value.kernel.execCommand("insertHTML", html);
 				iframeRef.value?.focus();
-				editor.value.execCommand('focus');
+				editor.value.execCommand("focus");
 				editor.value.renderer.scrollToCurrentSelection();
-			  },
-			  setContent: (
+			},
+			setContent: (
 				content: string,
-				type: 'text/lake' | 'text/html' = 'text/html',
-			  ) => {
+				type: "text/lake" | "text/html" = "text/html"
+			) => {
 				if (!editor.value) return;
 				iframeRef.value?.focus();
 				editor.value.setDocument(type, content);
-				editor.value.execCommand('focus', 'end');
+				editor.value.execCommand("focus", "end");
 				// 寻找定位的block 插入到block上方
-				const node = editor.value.kernel.model.document.getNodeById(blockquoteID);
+				const node =
+					editor.value.kernel.model.document.getNodeById(
+						blockquoteID
+					);
 				if (node) {
-				  const rootNode = editor.value.kernel.model.document.rootNode;
-				  if (rootNode.firstNode === node) {
-					return;
-				  }
-				  editor.value.kernel.execCommand('selection', {
-					ranges: [
-					  {
-						start: {
-						  node: rootNode.children[node.offset - 1],
-						  offset: rootNode.children[node.offset - 1].childCount,
-						},
-					  },
-					],
-				  });
-				  editor.value.execCommand('focus');
+					const rootNode =
+						editor.value.kernel.model.document.rootNode;
+					if (rootNode.firstNode === node) {
+						return;
+					}
+					editor.value.kernel.execCommand("selection", {
+						ranges: [
+							{
+								start: {
+									node: rootNode.children[node.offset - 1],
+									offset: rootNode.children[node.offset - 1]
+										.childCount,
+								},
+							},
+						],
+					});
+					editor.value.execCommand("focus");
 				}
-			  },
-			  isEmpty: () => {
+			},
+			isEmpty: () => {
 				if (!editor) return true;
-				return editor.value.queryCommandValue('isEmpty');
-			  },
-			  getContent: (type: 'lake' | 'text/html' | 'description') => {
-				if (!editor.value) return '';
+				return editor.value.queryCommandValue("isEmpty");
+			},
+			getContent: (type: "lake" | "text/html" | "description") => {
+				if (!editor.value) return "";
 				// let times = 0;
 				// while (!editor.value.canGetDocument()) {
 				//   // 10s 后返回超时
@@ -223,45 +230,48 @@ export default defineComponent({
 				//   times++;
 				//   await sleep(100);
 				// }
-				if (type === 'lake') {
-				  return editor.value.getDocument('text/lake', { includeMeta: true });
-				} else if (type === 'text/html') {
-				  return editor.value.getDocument('text/html');
+				if (type === "lake") {
+					return editor.value.getDocument("text/lake", {
+						includeMeta: true,
+					});
+				} else if (type === "text/html") {
+					return editor.value.getDocument("text/html");
 				}
-				return editor.value.getDocument('description');
-			  },
-			  getSummaryContent: () => {
-				if (!editor) return '';
-				return editor.value.queryCommandValue('getSummary', 'lake');
-			  },
-			  wordCount: () => {
+				return editor.value.getDocument("description");
+			},
+			getSummaryContent: () => {
+				if (!editor) return "";
+				return editor.value.queryCommandValue("getSummary", "lake");
+			},
+			wordCount: () => {
 				if (!editor) return 0;
-				return editor.value.queryCommandValue('wordCount');
-			  },
-			  focusToStart: (offset = 0) => {
+				return editor.value.queryCommandValue("wordCount");
+			},
+			focusToStart: (offset = 0) => {
 				if (!editor) return;
 				iframeRef.value?.focus();
 				if (offset) {
-				  editor.value.kernel.execCommand('selection', {
-					ranges: [
-					  {
-						start: {
-						  node: editor.value.kernel.model.document.rootNode.children[offset],
-						  offset: 0,
-						},
-					  },
-					],
-				  });
-				  editor.value.execCommand('focus');
+					editor.value.kernel.execCommand("selection", {
+						ranges: [
+							{
+								start: {
+									node: editor.value.kernel.model.document
+										.rootNode.children[offset],
+									offset: 0,
+								},
+							},
+						],
+					});
+					editor.value.execCommand("focus");
 				} else {
-				  editor.value.execCommand('focus', 'start');
+					editor.value.execCommand("focus", "start");
 				}
-			  },
-			  insertBreakLine: () => {
+			},
+			insertBreakLine: () => {
 				if (!editor) return;
-				editor.value.execCommand('breakLine');
-			  },
-		})
+				editor.value.execCommand("breakLine");
+			},
+		});
 		onMounted(() => {
 			unLoad.value = loadLake();
 		});
@@ -273,14 +283,15 @@ export default defineComponent({
 				true
 			);
 		});
-		return ()=> h("iframe", {
-			ref: iframeRef,
-			class: "lake-editor",
-			height: "100%",
-			width: "100%",
-			srcDoc: templateHtml,
-			allow: "*",
-			style: "background: transparent; border: none;",
-		});
+		return () =>
+			h("iframe", {
+				ref: iframeRef,
+				class: "lake-editor",
+				height: "100%",
+				width: "100%",
+				srcDoc: templateHtml,
+				allow: "*",
+				style: "background: transparent; border: none;",
+			});
 	},
 });

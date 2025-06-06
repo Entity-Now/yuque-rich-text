@@ -21,8 +21,9 @@
 <script setup lang="ts">
 import { ref, watch, PropType } from "vue";
 import { YuqueRichText } from "yuque-rich-text";
+import type { IEditorRef } from "yuque-rich-text";
 
-const editRef = ref<InstanceType<typeof YuqueRichText>>();
+const editRef = ref<IEditorRef>();
 const modelValue = ref("123");
 const output = ref("");
 
