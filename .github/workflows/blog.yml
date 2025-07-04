@@ -1,0 +1,41 @@
+name: 部署
+
+on:
+  push:
+    branches:
+      - master  # 或你实际使用的分支名
+
+jobs:
+  deploy-gh-pages:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: write
+
+    steps:
+      - name: Checkout 仓库代码
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: 设置 Node.js 环境
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20.18.0
+          cache: npm
+
+      - name: 进入 DOC 目录并安装依赖
+        working-directory: ./DOC
+        run: npm ci
+
+      - name: 构建 VuePress 博客
+        working-directory: ./DOC
+        env:
+          NODE_OPTIONS: --max_old_space_size=8192
+        run: npm run build
+
+      - name: 部署到 GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages
+          folder: DOC/docs/.vuepress/dist
