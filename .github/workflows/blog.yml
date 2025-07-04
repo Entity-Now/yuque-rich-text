@@ -22,18 +22,19 @@ jobs:
       - name: 设置 Node.js 环境
         uses: actions/setup-node@v3
         with:
-          node-version: 20.18.0
-          cache: pnpm
+          node-version: 22.11.0
+          cache: 'pnpm' # Ensure cache is quoted as a string
+          cache-dependency-path: './DOC/pnpm-lock.yaml' # Specify the lockfile path
 
       - name: 安装 pnpm
         uses: pnpm/action-setup@v2
         with:
           version: 8
-
+          run_install: false # Prevent automatic install to avoid conflicts
 
       - name: 安装依赖（使用 pnpm）
         working-directory: ./DOC
-        run: pnpm install
+        run: pnpm install --frozen-lockfile # Use --frozen-lockfile for consistent installs
 
       - name: 构建 VuePress 博客（使用 pnpm）
         working-directory: ./DOC
