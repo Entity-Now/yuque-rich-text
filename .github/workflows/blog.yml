@@ -3,7 +3,7 @@ name: 部署
 on:
   push:
     branches:
-      - master  # 或你实际使用的分支名
+      - master
 
 jobs:
   deploy-gh-pages:
@@ -22,17 +22,20 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 20.18.0
-          cache: npm
+          cache: pnpm
 
-      - name: 进入 DOC 目录并安装依赖
+      - name: 安装 pnpm
+        run: npm install -g pnpm
+
+      - name: 安装依赖（使用 pnpm）
         working-directory: ./DOC
-        run: npm ci
+        run: pnpm install
 
-      - name: 构建 VuePress 博客
+      - name: 构建 VuePress 博客（使用 pnpm）
         working-directory: ./DOC
         env:
           NODE_OPTIONS: --max_old_space_size=8192
-        run: npm run build
+        run: pnpm run build
 
       - name: 部署到 GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
