@@ -26,7 +26,10 @@ jobs:
           cache: pnpm
 
       - name: 安装 pnpm
-        run: npm install -g pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
 
       - name: 安装依赖（使用 pnpm）
         working-directory: ./DOC
