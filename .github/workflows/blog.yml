@@ -15,31 +15,26 @@ jobs:
 
     steps:
       - name: Checkout 仓库代码
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@v4
 
-      - name: 设置 Node.js 环境
-        uses: actions/setup-node@v3
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
         with:
-          node-version: 22.11.0
-          cache: 'pnpm' # Ensure cache is quoted as a string
-          cache-dependency-path: './DOC/pnpm-lock.yaml' # Specify the lockfile path
+          version: 10
+          run_install: false
 
-      - name: 安装 pnpm
-        uses: pnpm/action-setup@v2
+      - name: Install Node.js
+        uses: actions/setup-node@v4
         with:
-          version: 8
-          run_install: false # Prevent automatic install to avoid conflicts
+          node-version: 22
+          cache: 'pnpm'
 
-      - name: 安装依赖（使用 pnpm）
+      - name: Install dependencies
         working-directory: ./DOC
-        run: pnpm install --frozen-lockfile # Use --frozen-lockfile for consistent installs
+        run: pnpm install
 
       - name: 构建 VuePress 博客（使用 pnpm）
         working-directory: ./DOC
-        env:
-          NODE_OPTIONS: --max_old_space_size=8192
         run: pnpm run docs:build
 
       - name: 部署到 GitHub Pages
