@@ -187,3 +187,5 @@ This is an **unofficial third-party extension** for `[www.yuque.com]`. It is not
 - This project does not redistribute any copyrighted materials from `[www.yuque.com]`.  
 
 [Read `[www.yuque.com]`'s Terms of Service](www.yuque.com) before installation.  
+
+## 友情链接 [莫欺客鞋帽优选](https://www.moqistar.com)
