@@ -40,10 +40,10 @@ export default defineThemeConfig({
   // createTime: true, // 是否显示文章创建时间
 
   /* 站点页脚 */
-  // footer: {
-  //   message: 'Power by <a target="_blank" href="https://v2.vuepress.vuejs.org/">VuePress</a> & <a target="_blank" href="https://theme-plume.vuejs.press">vuepress-theme-plume</a>',
-  //   copyright: '',
-  // },
+  footer: {
+    message: '友情链接 <a href="https://www.moqistar.com">莫欺客鞋帽优选</a>',
+    copyright: '',
+  },
 
   /**
    * @see https://theme-plume.vuejs.press/config/basic/#profile
@@ -64,12 +64,12 @@ export default defineThemeConfig({
    * 公告板
    * @see https://theme-plume.vuejs.press/guide/features/bulletin/
    */
-  // bulletin: {
-  //   layout: 'top-right',
-  //   contentType: 'markdown',
-  //   title: '公告板标题',
-  //   content: '公告板内容',
-  // },
+  bulletin: {
+    layout: 'top-right',
+    contentType: 'markdown',
+    title: '个人小站',
+    content: '莫欺客鞋帽优选<a href="https://www.moqistar.com">www.moqistar.com</a> 欢迎访问我的个人小站！',
+  },
 
   /* 过渡动画 @see https://theme-plume.vuejs.press/config/basic/#transition */
   // transition: {
