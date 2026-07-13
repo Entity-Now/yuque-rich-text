@@ -17,21 +17,24 @@ jobs:
       - name: Checkout 仓库代码
         uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v4
-        name: Install pnpm
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
         with:
-          version: 10
+          # Match DOC/package.json packageManager (pnpm@10.8.0)
+          version: 10.8.0
           run_install: false
 
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
-          cache: 'pnpm'
+          # Must be >= 22.13 for recent pnpm 10.x (do not pin 22.11.0)
+          node-version: "22"
+          cache: "pnpm"
+          cache-dependency-path: DOC/pnpm-lock.yaml
 
       - name: Install dependencies
         working-directory: ./DOC
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
       - name: 构建 VuePress 博客（使用 pnpm）
         working-directory: ./DOC
