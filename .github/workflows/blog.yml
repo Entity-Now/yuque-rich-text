@@ -17,18 +17,16 @@ jobs:
       - name: Checkout 仓库代码
         uses: actions/checkout@v4
 
+      # version is taken from root package.json "packageManager" (must match DOC)
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
-          # Match DOC/package.json packageManager (pnpm@10.8.0)
-          version: 10.8.0
           run_install: false
 
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
-          # Must be >= 22.13 for recent pnpm 10.x (do not pin 22.11.0)
-          node-version: "22"
+          node-version: "24"
           cache: "pnpm"
           cache-dependency-path: DOC/pnpm-lock.yaml
 

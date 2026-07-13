@@ -11,18 +11,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # pnpm must be set up before setup-node when using cache: 'pnpm'
+      # version is taken from package.json "packageManager" (pnpm@10.8.0)
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9
           run_install: false
 
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
-          # Use latest Node 22.x (pnpm 10+ requires >= 22.13; avoid pinning 22.11.0)
-          node-version: "22"
+          node-version: "24"
           registry-url: "https://registry.npmjs.org"
           cache: "pnpm"
 
@@ -48,13 +46,12 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9
           run_install: false
 
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: "24"
           registry-url: "https://npm.pkg.github.com"
           scope: "@entity-now"
           cache: "pnpm"
