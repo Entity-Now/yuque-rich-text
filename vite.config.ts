@@ -1,73 +1,78 @@
-import path from 'path';
-import { defineConfig, loadEnv } from 'vite';
-import vue from '@vitejs/plugin-vue'
-import dts from 'vite-plugin-dts';
+import path from "path";
+import { defineConfig, loadEnv } from "vite";
+import vue from "@vitejs/plugin-vue";
+import dts from "vite-plugin-dts";
 
-const libDir = path.resolve(__dirname, 'lib');
-const srcDir = path.resolve(__dirname, 'src');
+const libDir = path.resolve(__dirname, "lib");
+const srcDir = path.resolve(__dirname, "src");
 
 // https://vite.dev/config/
-export default ({mode})=>{
-  process.env = { ...process.env, ...loadEnv(mode, process.cwd()) };
+export default ({ mode }: { mode: string }) => {
+	process.env = { ...process.env, ...loadEnv(mode, process.cwd()) };
 
-  const IS_DEMO = process.env.VITE_BUILD_TARGET === 'demo';
+	const IS_DEMO =
+		process.env.VITE_BUILD_TARGET === "demo" || mode === "demo";
 
-  return defineConfig({
-    plugins: [vue(),
-      IS_DEMO
-        ? null
-        : dts({
-            include: ['src'],
-            insertTypesEntry: true,
-          }),
-    ],
-    resolve: {
-      alias: [
-        {
-          find: '@',
-          replacement: path.resolve(__dirname, 'src'),
-        },
-        {
-          find: 'demo',
-          replacement: path.resolve(__dirname, 'demo'),
-        },
-        {
-          find: 'yuque-rich-text',
-          replacement: path.resolve(__dirname, 'src/index.ts'),
-        },
-      ],
-    },
-    build: IS_DEMO
-      ? undefined
-      : {
-          outDir: libDir,
-          minify: 'esbuild',
-          lib: {
-            entry: path.resolve(srcDir, 'index.ts'),
-            name: 'YuqueRichText',
-            fileName: 'yuque-rich-text',
-          },
-          // https://rollupjs.org/guide/en/#big-list-of-options
-          rollupOptions: {
-            // 确保外部化处理那些你不想打包进库的依赖
-            external: [
-              'vue',
-            ],
-            output: {
-              exports: 'named',
-              // https://github.com/henriquehbr/svelte-typewriter/issues/21#issuecomment-968835822
-              inlineDynamicImports: true,
-              // 在 UMD 构建模式下为这些外部化的依赖提供一个全局变量
-              globals: {
-                vue: 'vue',
-                
-              },
-            },
-            plugins: [
-              
-            ],
-          },
-        },
-    // publicDir: IS_DEMO ? 'public' : false,
-  })
-}
+	return defineConfig({
+		plugins: [
+			vue(),
+			IS_DEMO
+				? null
+				: dts({
+						include: ["src"],
+						insertTypesEntry: true,
+						outDir: libDir,
+						rollupTypes: false,
+					}),
+		].filter(Boolean),
+		resolve: {
+			alias: [
+				{
+					find: "@",
+					replacement: path.resolve(__dirname, "src"),
+				},
+				{
+					find: "demo",
+					replacement: path.resolve(__dirname, "demo"),
+				},
+				{
+					find: "yuque-rich-text",
+					replacement: path.resolve(__dirname, "src/index.ts"),
+				},
+			],
+		},
+		esbuild: {
+			jsx: "automatic",
+			jsxImportSource: "react",
+		},
+		build: IS_DEMO
+			? undefined
+			: {
+					outDir: libDir,
+					emptyOutDir: true,
+					copyPublicDir: false,
+					minify: "esbuild",
+					lib: {
+						entry: {
+							index: path.resolve(srcDir, "index.ts"),
+							vue: path.resolve(srcDir, "vue/index.ts"),
+							react: path.resolve(srcDir, "react/index.ts"),
+						},
+						// Multi-entry lib builds only support ES modules cleanly
+						formats: ["es"],
+						fileName: (_format, entryName) => `${entryName}.js`,
+					},
+					rollupOptions: {
+						external: [
+							"vue",
+							"react",
+							"react-dom",
+							"react/jsx-runtime",
+						],
+						output: {
+							exports: "named",
+						},
+					},
+				},
+	});
+};

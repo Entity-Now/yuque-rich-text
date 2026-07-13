@@ -1,26 +1,29 @@
 {
   "compilerOptions": {
-    "target": "es6",
-    "module": "esnext",
+    "target": "ES2020",
+    "module": "ESNext",
     "strict": true,
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "importHelpers": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "experimentalDecorators": true,
     "allowJs": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
     "sourceMap": true,
     "baseUrl": ".",
     "typeRoots": ["./types", "./node_modules/@types"],
-    "types": ["element-plus/global"],
     "paths": {
       "@/*": ["./src/*"],
       "demo/*": ["./demo/*"],
-      "yuque-rich-text": ["./src/index.ts"]
+      "yuque-rich-text": ["./src/index.ts"],
+      "yuque-rich-text/vue": ["./src/vue/index.ts"],
+      "yuque-rich-text/react": ["./src/react/index.ts"]
     },
-    "lib": ["esnext", "dom", "dom.iterable", "scripthost"],
-    "isolatedModules": true
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "isolatedModules": true,
+    "resolveJsonModule": true
   },
   "include": [
     "types/**/*",
@@ -29,9 +32,7 @@
     "src/**/*.vue",
     "demo/**/*.vue",
     "demo/**/*.ts",
-    "demo/**/*.tsx",
-    "tests/**/*.ts",
-    "tests/**/*.tsx"
+    "demo/**/*.tsx"
   ],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "lib", "dist"]
 }

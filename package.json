@@ -1,35 +1,96 @@
 {
   "name": "yuque-rich-text",
   "private": false,
-  "version": "1.0.2", 
+  "version": "1.1.0",
   "author": "entity-now",
-  "description": "由于本人觉得语雀编辑器非常好用，很符合我的使用习惯，然后发现语雀的浏览器插件实现了编辑器的功能，所以将其富文本的功能拆分位一个单独的Vue3组件。", 
-  "keywords": ["富文本编辑器", "Rich Text", "yuque", "语雀", "vue3 rich text"],
+  "description": "Yuque (语雀) Lake rich-text editor & viewer for Vue 3 and React — extract from yuque-chrome-extension.",
+  "keywords": [
+    "rich-text",
+    "editor",
+    "yuque",
+    "语雀",
+    "lake",
+    "vue3",
+    "react",
+    "wysiwyg",
+    "rich text editor"
+  ],
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/Entity-Now/yuque-rich-text"
   },
+  "bugs": {
+    "url": "https://github.com/Entity-Now/yuque-rich-text/issues"
+  },
+  "homepage": "https://github.com/Entity-Now/yuque-rich-text#readme",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
   "type": "module",
-  "main": "./src/index.ts",
+  "main": "./lib/index.js",
+  "module": "./lib/index.js",
+  "types": "./lib/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "import": "./lib/index.js",
+      "default": "./lib/index.js"
+    },
+    "./vue": {
+      "types": "./lib/vue.d.ts",
+      "import": "./lib/vue.js",
+      "default": "./lib/vue.js"
+    },
+    "./react": {
+      "types": "./lib/react.d.ts",
+      "import": "./lib/react.js",
+      "default": "./lib/react.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "README.md"
+  ],
+  "sideEffects": false,
   "scripts": {
     "dev": "vite",
     "demo:preview": "vite preview",
-    "build:demo": "VITE_BUILD_TARGET=demo vue-tsc -b && vite build",
-    "build:lib": "vite build"
+    "build:demo": "vite build --mode demo",
+    "build:lib": "vite build",
+    "build": "vite build",
+    "typecheck": "vue-tsc --noEmit"
   },
-  "dependencies": {
-    "@types/node": "^22.14.1",
-    "vite-plugin-dts": "^4.5.3",
-    "vue": "^3.5.13"
+  "peerDependencies": {
+    "react": ">=17.0.0",
+    "react-dom": ">=17.0.0",
+    "vue": "^3.0.0"
   },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    },
+    "vue": {
+      "optional": true
+    }
+  },
+  "dependencies": {},
   "devDependencies": {
+    "@types/node": "^22.14.1",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
     "@vitejs/plugin-vue": "^5.2.2",
     "@vue/tsconfig": "^0.7.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "typescript": "~5.7.2",
     "vite": "^6.3.0",
+    "vite-plugin-dts": "^4.5.3",
+    "vue": "^3.5.13",
     "vue-tsc": "^2.2.8"
   }
 }

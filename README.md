@@ -1,191 +1,464 @@
-# Yuque Rich Text（语雀富文本编辑器）
+# yuque-rich-text
 
-由于本人觉得语雀编辑器非常好用，很符合我的使用习惯，然后发现语雀的[Chrome浏览器插件](https://github.com/yuque/yuque-chrome-extension)实现了编辑器的功能，所以将其富文本的功能拆分位一个单独的Vue3组件。
+[![npm version](https://img.shields.io/npm/v/yuque-rich-text.svg)](https://www.npmjs.com/package/yuque-rich-text)
+[![license](https://img.shields.io/npm/l/yuque-rich-text.svg)](./LICENSE)
 
-## 安装
-```sh
-npm i yuque-rich-text
+**Yuque (语雀) Lake** rich-text **editor** and **viewer** for **Vue 3** and **React**.
+
+Extracted from the official [yuque-chrome-extension](https://github.com/yuque/yuque-chrome-extension) so you can embed the same Lake editing experience in your own apps.
+
+> **Unofficial third-party package.** Not affiliated with, maintained by, or endorsed by Yuque / 语雀.
+
+---
+
+## Table of Contents
+
+- [Features](#features)
+- [Screenshots](#screenshots)
+- [Installation](#installation)
+- [Prerequisites (CDN assets)](#prerequisites-cdn-assets)
+- [Quick Start](#quick-start)
+  - [Vue 3](#vue-3)
+  - [React](#react)
+- [Upload configuration](#upload-configuration)
+- [API Reference](#api-reference)
+  - [Props](#props)
+  - [Events / Callbacks](#events--callbacks)
+  - [Imperative API (`ref`)](#imperative-api-ref)
+- [Viewer mode](#viewer-mode)
+- [Package exports](#package-exports)
+- [Development](#development)
+- [Disclaimer](#disclaimer)
+- [License](#license)
+
+---
+
+## Features
+
+| Feature | Description |
+| --- | --- |
+| **Vue 3 & React** | First-class adapters with a shared core |
+| **Editor + Viewer** | Full WYSIWYG editing or read-only preview |
+| **Configurable upload** | Custom **upload URLs** and/or **upload callbacks** for image & video |
+| **Lake format** | Native Yuque Lake document format + HTML interop |
+| **Imperative API** | `setContent` / `getContent` / `appendContent` / `wordCount` / … |
+| **Iframe isolation** | Editor runs in a sandboxed iframe with Lake runtime |
+
+---
+
+## Screenshots
+
+![Component demo](https://github.com/Entity-Now/yuque-rich-text/blob/master/public/Images/yuque-rich-text.gif)
+
+---
+
+## Installation
+
+```bash
+# npm
+npm install yuque-rich-text
+
+# pnpm
+pnpm add yuque-rich-text
+
+# yarn
+yarn add yuque-rich-text
 ```
 
-## 截图
-![组件实例](https://github.com/Entity-Now/yuque-rich-text/blob/master/public/Images/yuque-rich-text.gif)
+**Peer dependencies** (install what you use):
 
-### 引入相关样式
+```bash
+# Vue 3
+npm install vue@^3
 
-`head`标签中加入
-
-``` html
-  <head>
-    <link rel="stylesheet" type="text/css" href="https://gw.alipayobjects.com/render/p/yuyan_npm/@alipay_lakex-doc/1.71.0/umd/doc.css"/>
-    <link rel="stylesheet" type="text/css" href="https://gw.alipayobjects.com/os/lib/antd/4.24.13/dist/antd.css"/>
-  </head>
+# React
+npm install react react-dom
 ```
 
-`body`标签内的最后一行加入
+---
+
+## Prerequisites (CDN assets)
+
+Lake depends on global scripts/styles. Include them in your host HTML (or inject equivalently at runtime).
+
+### Styles (`<head>`)
 
 ```html
-  <body>
-    <script crossorigin src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
-    <script src="https://gw.alipayobjects.com/render/p/yuyan_v/180020010000005484/7.1.4/CodeMirror.js"></script>
-    <script src="https://ur.alipay.com/tracert_a385.js"></script>
-    <script src="https://mdn.alipayobjects.com/design_kitchencore/afts/file/ANSZQ7GHQPMAAAAAAAAAAAAADhulAQBr"></script>
-    <script src="https://gw.alipayobjects.com/render/p/yuyan_npm/@alipay_lakex-doc/1.71.0/umd/doc.umd.js"></script>
-  </body>
+<link
+  rel="stylesheet"
+  type="text/css"
+  href="https://gw.alipayobjects.com/render/p/yuyan_npm/@alipay_lakex-doc/1.71.0/umd/doc.css"
+/>
+<link
+  rel="stylesheet"
+  type="text/css"
+  href="https://gw.alipayobjects.com/os/lib/antd/4.24.13/dist/antd.css"
+/>
 ```
 
-### 编辑使用案例
-> 注意不可在onChange事件中修改value的值，否则会进入无限递归。
+### Scripts (before app bootstrap, typically end of `<body>`)
 
 ```html
+<script crossorigin src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://gw.alipayobjects.com/render/p/yuyan_v/180020010000005484/7.1.4/CodeMirror.js"></script>
+<script src="https://ur.alipay.com/tracert_a385.js"></script>
+<script src="https://mdn.alipayobjects.com/design_kitchencore/afts/file/ANSZQ7GHQPMAAAAAAAAAAAAADhulAQBr"></script>
+<script src="https://gw.alipayobjects.com/render/p/yuyan_npm/@alipay_lakex-doc/1.71.0/umd/doc.umd.js"></script>
+```
 
+> The editor iframe also loads these assets via its internal template. Host-page inclusion is still recommended for consistent global `Doc` availability in some environments.
+
+---
+
+## Quick Start
+
+### Vue 3
+
+```vue
 <template>
-  <YuqueRichText ref="editorRef" :value="content" @onChange="editChange" @onLoad="load"/>
-  <button @click="appendText">追加内容</button>
-  <button @click="getContent">获取内容</button>
-  <button @click="setText">更新内容</button>
+  <div class="editor-wrap">
+    <YuqueRichText
+      ref="editorRef"
+      :value="content"
+      :image-upload-u-r-l="imageUploadURL"
+      :video-upload-u-r-l="videoUploadURL"
+      :upload-image="uploadImage"
+      @on-change="onChange"
+      @on-load="onLoad"
+      @on-save="onSave"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { YuqueRichText } from 'yuque-rich-text'
+import { ref } from "vue";
+import { YuqueRichText } from "yuque-rich-text";
+// or: import { YuqueRichText } from 'yuque-rich-text/vue'
 import type { IEditorRef } from "yuque-rich-text";
 
-const editorRef = ref<IEditorRef>()
-const content = ref('初始内容')
+const editorRef = ref<IEditorRef>();
+const content = ref("<p>Hello Lake</p>");
 
-const appendText = () => {
-  if (editorRef.value) {
-    editorRef.value.appendContent('<p>这是追加的内容</p>', true)
-  }
-}
-const setText = () => {
-  if (editorRef.value) {
-    editorRef.value.setContent('<p>更新的内容</p>')
-  }
-}
+/** Prefer kebab for multi-cap props, or use camelCase in script-bound objects */
+const imageUploadURL = "/api/v1/upload/image";
+const videoUploadURL = "/api/v1/upload/video";
 
-const getContent = () => {
-  if (editorRef.value) {
-    const html = editorRef.value.getContent('text/html')
-    alert('当前内容:' + html)
-  }
-}
+const uploadImage = async (params: { data: string | File }) => {
+  const form = new FormData();
+  form.append("file", params.data);
+  const res = await fetch(imageUploadURL, { method: "POST", body: form });
+  const json = await res.json();
+  return {
+    url: json.url,
+    size: json.size ?? 0,
+    filename: json.filename ?? "image.png",
+  };
+};
 
-const load = ()=>{
-  console.log("编辑器加载成功...");
-  // 此时可进行增删改查操作
-  editorRef.value?.appendContent('<p>这是追加的内容</p><br>', true)
-}
+const onChange = (value: string) => {
+  // Do NOT write back into `content` from onChange with the same binding
+  // if you also pass `:value="content"` without guards — that can loop.
+  console.log("change", value);
+};
 
-const editChange = (e : string)=>{
-  console.log("编辑器内容发生变化：", e);
-}
+const onLoad = () => {
+  editorRef.value?.focusToStart();
+};
+
+const onSave = () => {
+  // Ctrl/Cmd + Enter
+  console.log(editorRef.value?.getContent("lake"));
+};
 </script>
+
+<style scoped>
+.editor-wrap {
+  height: 480px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+</style>
 ```
 
-### 预览模式
+> **Tip:** Vue prop names like `imageUploadURL` are exposed as `image-upload-u-r-l` in templates. You can also pass a nested `upload` object to avoid awkward kebab names (see [Upload configuration](#upload-configuration)).
 
-> 使用也非常简单， 将组建的`isview`属性改为`true`即可。
+Using nested `upload` (recommended in Vue templates):
 
-```html
-<template>
-  <YuqueRichText :isview="true" :value="content" />
-</template>
+```vue
+<YuqueRichText
+  ref="editorRef"
+  :value="content"
+  :upload="{
+    imageUploadURL: '/api/v1/upload/image',
+    videoUploadURL: '/api/v1/upload/video',
+    uploadImage,
+  }"
+  @on-change="onChange"
+/>
 ```
+
+### React
+
+```tsx
+import { useRef, useState } from "react";
+import { LakeRich, type IEditorRef } from "yuque-rich-text/react";
+
+export function DocEditor() {
+  const editorRef = useRef<IEditorRef>(null);
+  const [value, setValue] = useState("<p>Hello Lake</p>");
+
+  return (
+    <div style={{ height: 480 }}>
+      <LakeRich
+        ref={editorRef}
+        value={value}
+        imageUploadURL="/api/v1/upload/image"
+        videoUploadURL="/api/v1/upload/video"
+        uploadImage={async ({ data }) => {
+          const form = new FormData();
+          form.append("file", data);
+          const res = await fetch("/api/v1/upload/image", {
+            method: "POST",
+            body: form,
+          });
+          const json = await res.json();
+          return {
+            url: json.url,
+            size: json.size ?? 0,
+            filename: json.filename ?? "image.png",
+          };
+        }}
+        onChange={setValue}
+        onLoad={() => editorRef.current?.focusToStart()}
+        onSave={() => {
+          console.log(editorRef.current?.getContent("lake"));
+        }}
+      />
+    </div>
+  );
+}
+```
+
+---
+
+## Upload configuration
+
+Previously the editor hard-coded `/api/upload/image` and `/api/upload/video`. You can now configure **URLs** and/or **custom upload functions**.
+
+### Option A — Upload URLs only
+
+Lake will POST to your endpoints using its built-in uploader:
+
+```ts
+{
+  imageUploadURL: "https://your.cdn.example/upload/image",
+  imageCrawlURL: "https://your.cdn.example/crawl/image", // optional; defaults to imageUploadURL
+  videoUploadURL: "https://your.cdn.example/upload/video",
+}
+```
+
+### Option B — Custom upload callbacks
+
+Full control over auth headers, form fields, response mapping:
+
+```ts
+async function uploadImage(params: { data: string | File }) {
+  // params.data is File | base64 string depending on Lake path
+  const res = await yourUploader(params.data);
+  return {
+    url: res.publicUrl,
+    size: res.bytes,
+    filename: res.name,
+  };
+}
+```
+
+When `uploadImage` / `uploadVideo` is provided, it is passed to Lake as `createUploadPromise` and takes precedence for the upload pipeline.
+
+### Option C — Nested `upload` object
+
+```ts
+const upload = {
+  imageUploadURL: "/api/upload/image",
+  imageCrawlURL: "/api/upload/crawl",
+  videoUploadURL: "/api/upload/video",
+  uploadImage: async ({ data }) => { /* ... */ },
+  uploadVideo: async ({ data }) => { /* ... */ },
+};
+```
+
+**Precedence:** flat props (`imageUploadURL`, `uploadImage`, …) override the same keys inside `upload`.
+
+| Field | Type | Default | Description |
+| --- | --- | --- | --- |
+| `imageUploadURL` | `string` | `/api/upload/image` | Image upload endpoint |
+| `imageCrawlURL` | `string` | same as `imageUploadURL` | Remote image crawl / proxy |
+| `videoUploadURL` | `string` | `/api/upload/video` | Video upload endpoint |
+| `uploadImage` | `(params) => Promise<UploadResult>` | — | Custom image uploader |
+| `uploadVideo` | `(params) => Promise<UploadResult>` | — | Custom video uploader |
+
+```ts
+interface UploadResult {
+  url: string;
+  size: number;
+  filename: string;
+}
+```
+
+---
+
+## API Reference
 
 ### Props
 
-```js
-    export interface EditorProps {
-        value: string; // 传递给组件的内容
-        children?: any; // 暂无实现
-        isview?: boolean; // 为true该组件是只读的，为空或false则是编辑模式
-        uploadImage?: (params: { data: string | File }) => Promise<{
-            url: string;
-            size: number;
-            filename: string;
-        }>;
-        uploadVideo?: (params: { data: string | File }) => Promise<{
-            url: string;
-            size: number;
-            filename: string;
-        }>;
-    }
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `value` | `string` | `''` | Document content (Lake / HTML as accepted by Lake) |
+| `isview` | `boolean` | `false` | `true` → read-only viewer |
+| `isView` | `boolean` | — | React-only alias of `isview` |
+| `placeholder` | `string` | `'输入内容...'` | Empty-editor placeholder |
+| `defaultFontsize` | `number` | `14` | Default font size (px) |
+| `upload` | `UploadConfig` | — | Nested upload config |
+| `imageUploadURL` | `string` | see above | Image upload URL |
+| `imageCrawlURL` | `string` | see above | Image crawl URL |
+| `videoUploadURL` | `string` | see above | Video upload URL |
+| `uploadImage` | `function` | — | Custom image upload |
+| `uploadVideo` | `function` | — | Custom video upload |
+
+### Events / Callbacks
+
+| Name | Payload | Description |
+| --- | --- | --- |
+| `onChange` | `(value: string)` | Content changed (Lake string with meta) |
+| `onLoad` | `()` | Editor / viewer ready |
+| `onSave` | `()` | `Ctrl+Enter` (Windows/Linux) or `Cmd+Enter` (macOS*) |
+
+\*Save chord follows the original extension behavior.
+
+Vue also emits `update:value` for optional `v-model:value` usage. Avoid uncontrolled two-way binding loops: if you bind both `:value` and `@onChange` that immediately writes the same source, guard with equality checks.
+
+### Imperative API (`ref`)
+
+```ts
+interface IEditorRef {
+  appendContent: (html: string, breakLine?: boolean) => void;
+  setContent: (content: string, type?: "text/lake" | "text/html") => void;
+  getContent: (type: "lake" | "text/html" | "description") => string;
+  isEmpty: () => boolean;
+  getSummaryContent: () => string;
+  wordCount: () => number;
+  focusToStart: (offset?: number) => void;
+  insertBreakLine: () => void;
+}
 ```
 
-### Emit
+| Method | Description |
+| --- | --- |
+| `appendContent(html, breakLine?)` | Append HTML; optional leading break |
+| `setContent(content, type?)` | Replace document (`text/html` default) |
+| `getContent(type)` | Read content as Lake / HTML / description |
+| `isEmpty()` | Whether document is empty |
+| `getSummaryContent()` | Summary in Lake format |
+| `wordCount()` | Word count |
+| `focusToStart(offset?)` | Focus start (optional paragraph offset) |
+| `insertBreakLine()` | Insert line break at selection |
 
-```js
-    export interface EditorEmits{
-        onChange?: (value: string) => void;
-        onLoad?: () => void;
-        onSave?: () => void;
-    }
+Call imperative methods **after** `onLoad`.
+
+---
+
+## Viewer mode
+
+### Vue
+
+```vue
+<script setup lang="ts">
+import { YuqueRichText, YuqueRichTextView } from "yuque-rich-text";
+</script>
+
+<template>
+  <!-- Option 1 -->
+  <YuqueRichText :isview="true" :value="htmlOrLake" />
+
+  <!-- Option 2: dedicated viewer component -->
+  <YuqueRichTextView :value="htmlOrLake" />
+</template>
 ```
 
-## Expose
+### React
 
-```js
-    export interface IEditorRef {
-        /**
-         * 追加html到文档
-         * @param html html内容
-         * @param breakLine 是否前置一个换行符
-         */
-        appendContent: (html: string, breakLine?: boolean) => void;
-        /**
-         * 设置文档内容，将清空旧的内容
-         * @param html html内容
-         */
-        setContent: (content: string, type?: "text/lake" | "text/html") => void;
-        /**
-         * 获取文档内容
-         * @param type 内容的格式
-         * @return 文档内容
-         */
-        getContent: (type: "lake" | "text/html") => string;
-        /**
-         * 判断当前文档是否是空文档
-         * @return true表示当前是空文档
-         */
-        isEmpty: () => boolean;
+```tsx
+import { LakeRich, LakeRichView } from "yuque-rich-text/react";
 
-        /**
-         * 获取额外信息
-         * @return
-         */
-        getSummaryContent: () => string;
-
-        /**
-         * 统计字数
-         * @return
-         */
-        wordCount: () => number;
-
-        /**
-         * 聚焦到文档开头
-         * @param {number} offset 偏移多少个段落，可以将选区落到开头的第offset个段落上, 默认是0
-         * @return
-         */
-        focusToStart: (offset?: number) => void;
-
-        /**
-         * 插入换行符
-         * @return
-         */
-        insertBreakLine: () => void;
-    }
+<LakeRich isView value={content} />
+// or
+<LakeRichView value={content} />
 ```
 
+---
 
-## ⚠️ Disclaimer  
-This is an **unofficial third-party extension** for `[www.yuque.com]`. It is not affiliated with, maintained by, or endorsed by `[www.yuque.com]`.  
+## Package exports
 
-- **Use at your own risk**. The developers are not responsible for any violations of `[www.yuque.com]`'s terms or damages caused by this project.  
-- **Do not use** if `[www.yuque.com]` prohibits third-party modifications.  
-- This project does not redistribute any copyrighted materials from `[www.yuque.com]`.  
+| Subpath | Framework | Primary symbols |
+| --- | --- | --- |
+| `yuque-rich-text` | Vue 3 (default, backward compatible) | `YuqueRichText`, `YuqueRichTextView` |
+| `yuque-rich-text/vue` | Vue 3 | same as default |
+| `yuque-rich-text/react` | React | `LakeRich`, `LakeRichView` |
 
-[Read `[www.yuque.com]`'s Terms of Service](www.yuque.com) before installation.  
+Shared types (`IEditorRef`, `UploadConfig`, …) are re-exported from each entry.
 
-## 友情链接 [莫欺客鞋帽优选](https://www.moqistar.com)
+---
+
+## Development
+
+```bash
+# install
+pnpm install   # or npm install
+
+# local demo
+pnpm dev
+
+# library build → ./lib
+pnpm build:lib
+
+# static demo build
+pnpm build:demo
+```
+
+### Project layout
+
+```
+src/
+  core/           # Framework-agnostic Lake mount + types
+  vue/            # Vue 3 adapter
+  react/          # React adapter
+  components/     # Legacy paths (re-exports)
+demo/             # Vite playground
+```
+
+---
+
+## Disclaimer
+
+This is an **unofficial third-party** integration for [Yuque](https://www.yuque.com). It is **not** affiliated with, maintained by, or endorsed by Yuque.
+
+- **Use at your own risk.** Authors are not responsible for ToS violations or damages.
+- Do **not** use if Yuque prohibits this usage in your context.
+- This project does not redistribute Yuque’s proprietary application source; it loads publicly referenced Lake runtime assets in the same manner as the open-source browser extension.
+
+Please review [Yuque’s Terms of Service](https://www.yuque.com) before production use.
+
+---
+
+## License
+
+MIT
+
+---
+
+## Credits
+
+- [yuque-chrome-extension](https://github.com/yuque/yuque-chrome-extension) — original editor integration
+- Lake / lakex-doc runtime — Alipay / Yuque ecosystem
